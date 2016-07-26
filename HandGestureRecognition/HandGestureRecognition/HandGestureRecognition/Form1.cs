@@ -46,8 +46,14 @@ namespace HandGestureRecognition
         PointF detection_point;
         MemStorage storage = new MemStorage();
         Contour<Point> hand;
+        bool transational;
+        bool scale;
+        float scalefactor;
+        bool scaling;
+        float radi;
 
-        
+        float ratioX = 1f;//(1000f / 10);
+        float ratioY = 1f;//(800f / 2);
         public Form1()
         {
             InitializeComponent();
@@ -68,6 +74,11 @@ namespace HandGestureRecognition
             box = new MCvBox2D();
             ellip = new Ellipse();
             hand = null;
+            scalefactor = 0.2f;
+            scale = true;
+            scaling = false;
+            transational = false;
+            radi = 5f;
             object_3d = new MCvPoint3D32f(0, 0, 0);
             Application.Idle += new EventHandler(FrameGrabber);                        
         }
@@ -79,12 +90,12 @@ namespace HandGestureRecognition
             {
                 currentFrameCopy = currentFrame.Copy();
                 // Uncomment if using opencv adaptive skin detector
-                //Image<Gray,Byte> skin = new Image<Gray,byte>(currentFrameCopy.Width,currentFrameCopy.Height);                
-                //detector.Process(currentFrameCopy, skin);                
+                Image<Gray,Byte> skin = new Image<Gray,byte>(currentFrameCopy.Width,currentFrameCopy.Height);                
+                detector.Process(currentFrameCopy, skin);                
 
-                skinDetector = new YCrCbSkinDetector();
+                //skinDetector = new YCrCbSkinDetector();
                 
-                Image<Gray, Byte> skin = skinDetector.DetectSkin(currentFrameCopy,YCrCb_min,YCrCb_max);
+                //Image<Gray, Byte> skin = skinDetector.DetectSkin(currentFrameCopy,YCrCb_min,YCrCb_max);
 
                 ExtractContourAndHull(skin);
                                 
@@ -93,48 +104,90 @@ namespace HandGestureRecognition
                 imageBoxSkin.Image = skin;
                 imageBoxFrameGrabber.Image = currentFrame;
                 object_3d = this.ConvertTo3D(this.object_point);
-                Console.WriteLine("(" + object_3d.x + ", " + object_3d.y + ", " + object_3d.z + ")");
+               // Console.WriteLine("(" + object_3d.x + ", " + object_3d.y + ", " + object_3d.z + ")");
             }
         }
 
         private MCvPoint3D32f ConvertTo3D(PointF point)
         {
-            float ratioX = (1000.0f/10);
-            float ratioY = (800.0f/2);
             return new MCvPoint3D32f(this.object_point.X*ratioX, this.object_point.Y*ratioY, 0);
         }
         
-        private PointF MaxYPoint(Point[] arr)
+        private PointF[] MaxYPoints(Point[] arr, int num)
         {
-            PointF max = new PointF(0,0);
-            float maxLenght = 100000;
-            for (int i = 0; i < arr.Length; i++)
+            HashSet<int> set = new HashSet<int>();
+            PointF[] result= new PointF[num];
+            for (int j = 0; j < num; j++)
             {
-                if (arr[i].Y < maxLenght)
+                PointF max = new PointF(0, 0);
+                float maxLenght = 100000;
+                int index = -1;
+                for (int i = 0; i < arr.Length; i++)
                 {
-                    maxLenght = arr[i].Y;
-                    max = new PointF(arr[i].X, arr[i].Y);
+                    if (arr[i].Y < maxLenght && !set.Contains(i))
+                    {
+                        maxLenght = arr[i].Y;
+                        max = new PointF(arr[i].X, arr[i].Y);
+                        index = i;
+                    }
                 }
+                set.Add(index);
+                result[j] = max;
             }
-            return max;
+                return result;
+        }
+
+
+        private Contour<Point> findContour(Contour<Point> contours)
+        {
+
+            Contour<Point> biggestContour = null;
+            if (!open || scale)
+            {
+                Double Result1 = 0;
+                Double Result2 = 0;
+
+                while (contours != null)
+                {
+                    Result1 = contours.Area;
+                    if (Result1 > Result2)
+                    {
+                        Result2 = Result1;
+                        biggestContour = contours;
+                    }
+                    contours = contours.HNext;
+                }
+                return biggestContour;
+            }
+            else
+            {
+                double max = 0;
+                while (contours != null)
+                {
+                    Seq<MCvConvexityDefect> defs = contours.GetConvexityDefacts(storage, Emgu.CV.CvEnum.ORIENTATION.CV_CLOCKWISE);
+                    MCvConvexityDefect[] defsArray = defs.ToArray();
+                    double current = 0.0;
+                    for (int i = 0; i < defsArray.Length; i++)
+                    {
+
+                        current += (new LineSegment2D(defsArray[i].StartPoint, defsArray[i].DepthPoint)).Length;
+                    }
+                    if (current > max)
+                    {
+                        max = current;
+                        biggestContour = contours;
+                    }
+                    contours = contours.HNext;
+                }
+                return biggestContour;
+            }
         }
         private void ExtractContourAndHull(Image<Gray, byte> skin)
         {
-            Contour<Point> contours = skin.FindContours(Emgu.CV.CvEnum.CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_SIMPLE, Emgu.CV.CvEnum.RETR_TYPE.CV_RETR_LIST, storage);
-            Contour<Point> biggestContour = null;
+            Contour<Point> contoursMain = skin.FindContours(Emgu.CV.CvEnum.CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_SIMPLE, Emgu.CV.CvEnum.RETR_TYPE.CV_RETR_LIST, storage);
+            Contour<Point> contours = contoursMain;
+            Contour<Point> biggestContour = findContour(contours);
 
-            Double Result1 = 0;
-            Double Result2 = 0;
-            while (contours != null)
-            {
-                Result1 = contours.Area;
-                if (Result1 > Result2)
-                {
-                    Result2 = Result1;
-                    biggestContour = contours;
-                }
-                contours = contours.HNext;
-            }
 
             if (biggestContour != null)
             {
@@ -142,17 +195,68 @@ namespace HandGestureRecognition
                 Contour<Point> currentContour = biggestContour.ApproxPoly(biggestContour.Perimeter * 0.0025, storage);
                 currentFrame.Draw(currentContour, new Bgr(Color.LimeGreen), 2);
                 biggestContour = currentContour;
-                hand = biggestContour;
-                if (move)
+                if (transational)
                 {
-                    PointF max = MaxYPoint(hand.ToArray());
-                    object_point.X += max.X - detection_point.X;
-                    object_point.Y += max.Y - detection_point.Y;
-                    currentFrame.Draw(new CircleF(detection_point, 5f), new Bgr(Color.Black), 2);
+                    hand = biggestContour;
+                    if (move)
+                    {
+                        PointF max = MaxYPoints(hand.ToArray(), 1)[0];
+                        object_point.X += max.X - detection_point.X;
+                        object_point.Y += max.Y - detection_point.Y;
+                        Console.WriteLine("deltaX: " + (max.X - detection_point.X)*ratioX);
+                        Console.WriteLine("deltaY: " + (max.Y - detection_point.Y)*ratioY);
+                        Console.WriteLine("X: " + object_point.X * ratioX);
+                        Console.WriteLine("Y: " + object_point.Y * ratioY);
+                        //currentFrame.Draw(new CircleF(detection_point, 5f), new Bgr(Color.Black), 2);
+                    }
+                    if (object_point != null)
+                    {
+                        currentFrame.Draw(new CircleF(object_point, 5f), new Bgr(Color.Pink), 2);
+                    }
                 }
-                currentFrame.Draw(new CircleF(object_point, 5f), new Bgr(Color.Pink), 2);
+                if (scale)
+                {
+                    Double R1 = 0;
+                    Double R2 = 0;
+                    Contour<Point> c = contoursMain;
+                    Contour<Point> secondBiggestContour = null;
+                    float scale = 1f;
+                    hand = biggestContour;
+                    Console.WriteLine(hand.Area);
+                    while (c != null)
+                    {
+                        if (hand.Area - c.Area > 700f)
+                        {
+                            R1 = c.Area;
+                        }
+                        if (R1 > R2 && hand.Area - c.Area > 700f)
+                        {
+                            R2 = R1;
+                            secondBiggestContour = c;
+                        }
+                        c = c.HNext;
+                    }
+                    Contour<Point> hand2 = secondBiggestContour;
+                    if (hand2 != null)
+                    {
+                        currentFrame.Draw(hand2, new Bgr(Color.Blue), 2);
+                        currentFrame.Draw(hand, new Bgr(Color.LimeGreen), 2);
+                        if (scaling)
+                        {
+                            hand = biggestContour;
+                            PointF max = MaxYPoints(hand.ToArray(), 1)[0];
+                            PointF max2 = MaxYPoints(hand2.ToArray(), 1)[0];
+                            currentFrame.Draw(new CircleF(max, 5f), new Bgr(Color.LimeGreen), 2);
+                            currentFrame.Draw(new CircleF(max2, 5f), new Bgr(Color.Blue), 2);
 
-
+                            scale = GetScale(max, max2);
+                        }
+                        radi = scale;
+                        Console.WriteLine(radi);
+                        Console.WriteLine(scaling);
+                    }
+                    currentFrame.Draw(new CircleF(object_point, radi), new Bgr(Color.Pink), 2);
+                }
                 hull = biggestContour.GetConvexHull(Emgu.CV.CvEnum.ORIENTATION.CV_CLOCKWISE);
                 box = biggestContour.GetMinAreaRect();
                 PointF[] points = box.GetVertices();
@@ -162,8 +266,8 @@ namespace HandGestureRecognition
                 for (int i = 0; i < points.Length; i++)
                     ps[i] = new Point((int)points[i].X, (int)points[i].Y);
 
-                currentFrame.DrawPolyline(hull.ToArray(), true, new Bgr(200, 125, 75), 2);
-                currentFrame.Draw(new CircleF(new PointF(box.center.X, box.center.Y), 3), new Bgr(200, 125, 75), 2);
+                //currentFrame.DrawPolyline(hull.ToArray(), true, new Bgr(200, 125, 75), 2);
+                //currentFrame.Draw(new CircleF(new PointF(box.center.X, box.center.Y), 3), new Bgr(200, 125, 75), 2);
 
                 //ellip.MCvBox2D= CvInvoke.cvFitEllipse2(biggestContour.Ptr);
                 //currentFrame.Draw(new Ellipse(ellip.MCvBox2D), new Bgr(Color.LavenderBlush), 3);
@@ -194,6 +298,18 @@ namespace HandGestureRecognition
                 defectArray = defects.ToArray();
 
             }
+        }
+
+        private float GetScale(PointF pointF1, PointF pointF2)
+        {
+            double dX = pointF1.X - pointF2.X;
+            double dY = pointF1.Y - pointF2.Y;
+            double multi = dX * dX + dY * dY;
+            double rad = Math.Round(Math.Sqrt(multi), 3);
+            float radius  = Convert.ToSingle(rad);
+            Console.WriteLine("Diff: " + radius);
+            return radius * this.scalefactor;
+
         }
 
         private void DrawAndComputeFingersNum()
@@ -240,35 +356,63 @@ namespace HandGestureRecognition
                 {
                     fingerNum++;
                     currentFrame.Draw(startDepthLine, new Bgr(Color.Green), 2);
-                    //currentFrame.Draw(depthEndLine, new Bgr(Color.Magenta), 2);
+                    currentFrame.Draw(depthEndLine, new Bgr(Color.Magenta), 2);
                 }
 
 
-                //currentFrame.Draw(startCircle, new Bgr(Color.Red), 2);
-                //currentFrame.Draw(depthCircle, new Bgr(Color.Yellow), 5);
+                currentFrame.Draw(startCircle, new Bgr(Color.Red), 2);
+                currentFrame.Draw(depthCircle, new Bgr(Color.Yellow), 5);
                 //currentFrame.Draw(endCircle, new Bgr(Color.DarkBlue), 4);
             }
-            if (fingerNum == 5)
+            if (transational)
             {
-                open = true;
-                hold = false;
-                move = false;
+                if (fingerNum == 5)
+                {
+                    open = true;
+                    hold = false;
+                    move = false;
+                }
+                if (open && fingerNum < 2)
+                {
+                    hold = true;
+                    open = false;
+                }
+                //Console.WriteLine(hold);
+                if (hold && hand != null && hand.InContour(object_point) > 0)
+                {
+                    move = true;
+                }
+                if (move)
+                {
+                    detection_point = MaxYPoints(hand.ToArray(), 1)[0];
+                }
+                //Console.WriteLine(detection_point);
             }
-            if (open && fingerNum < 2)
+            if (scale)
             {
-                hold = true;
-                open = false;
+                //if (fingerNum == 5)
+                //{
+                //    open = true;
+                //    hold = false;
+                //    scaling = false;
+                //}
+                //if (open && fingerNum < 2)
+                //{
+                //    hold = true;
+                //    open = false;
+                //}
+                //if (hold && hand != null && hand.InContour(object_point) > 0)
+                //{
+                //    scaling = true;
+                //}
+                //if (fingerNum <= 3)
+               // {
+                    scaling = true;
+               // } else
+               // {
+               //     scaling = false;
+               // }
             }
-            //Console.WriteLine(hold);
-            if (hold && hand != null && hand.InContour(object_point) > 0)
-            {
-                move = true;
-            }
-            if (move)
-            {
-                detection_point = MaxYPoint(hand.ToArray());
-            }
-            //Console.WriteLine(detection_point);
 
             #endregion
 
