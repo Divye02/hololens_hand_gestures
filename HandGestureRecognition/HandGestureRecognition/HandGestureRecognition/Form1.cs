@@ -61,7 +61,7 @@ namespace HandGestureRecognition
             grabber.QueryFrame();
             frameWidth = grabber.Width;
             frameHeight = grabber.Height;            
-            detector = new AdaptiveSkinDetector(1, AdaptiveSkinDetector.MorphingMethod.NONE);
+            detector = new AdaptiveSkinDetector(1, AdaptiveSkinDetector.MorphingMethod.ERODE);
             hsv_min = new Hsv(0, 45, 0); 
             hsv_max = new Hsv(20, 255, 255);            
             YCrCb_min = new Ycc(0, 131, 80);
@@ -142,7 +142,7 @@ namespace HandGestureRecognition
         {
 
             Contour<Point> biggestContour = null;
-            if (!open || scale)
+            if (scale)
             {
                 Double Result1 = 0;
                 Double Result2 = 0;
@@ -159,8 +159,29 @@ namespace HandGestureRecognition
                 }
                 return biggestContour;
             }
-            else
+            else if (!open)
             {
+                double max = 0;
+                while (contours != null)
+                {
+                    Seq<MCvConvexityDefect> defs = contours.GetConvexityDefacts(storage, Emgu.CV.CvEnum.ORIENTATION.CV_CLOCKWISE);
+                    MCvConvexityDefect[] defsArray = defs.ToArray();
+                    double current = 0.0;
+                    for (int i = 0; i < defsArray.Length; i++)
+                    {
+
+                        current = Math.Max((new LineSegment2D(defsArray[i].StartPoint, defsArray[i].DepthPoint)).Length, current);
+                    }
+                    if (current > max)
+                    {
+                        max = current;
+                        biggestContour = contours;
+                    }
+                    contours = contours.HNext;
+                }
+                return biggestContour;
+            }
+            else {
                 double max = 0;
                 while (contours != null)
                 {
@@ -186,6 +207,9 @@ namespace HandGestureRecognition
         {
             Contour<Point> contoursMain = skin.FindContours(Emgu.CV.CvEnum.CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_SIMPLE, Emgu.CV.CvEnum.RETR_TYPE.CV_RETR_LIST, storage);
             Contour<Point> contours = contoursMain;
+            Console.WriteLine("move: " + move);
+            Console.WriteLine("open: " + open);
+            Console.WriteLine("hold: " + hold);
             Contour<Point> biggestContour = findContour(contours);
 
 
@@ -203,10 +227,10 @@ namespace HandGestureRecognition
                         PointF max = MaxYPoints(hand.ToArray(), 1)[0];
                         object_point.X += max.X - detection_point.X;
                         object_point.Y += max.Y - detection_point.Y;
-                        Console.WriteLine("deltaX: " + (max.X - detection_point.X)*ratioX);
-                        Console.WriteLine("deltaY: " + (max.Y - detection_point.Y)*ratioY);
-                        Console.WriteLine("X: " + object_point.X * ratioX);
-                        Console.WriteLine("Y: " + object_point.Y * ratioY);
+                        //Console.WriteLine("deltaX: " + (max.X - detection_point.X)*ratioX);
+                        //Console.WriteLine("deltaY: " + (max.Y - detection_point.Y)*ratioY);
+                        //Console.WriteLine("X: " + object_point.X * ratioX);
+                        //Console.WriteLine("Y: " + object_point.Y * ratioY);
                         //currentFrame.Draw(new CircleF(detection_point, 5f), new Bgr(Color.Black), 2);
                     }
                     if (object_point != null)
@@ -246,8 +270,8 @@ namespace HandGestureRecognition
                             hand = biggestContour;
                             PointF max = MaxYPoints(hand.ToArray(), 1)[0];
                             PointF max2 = MaxYPoints(hand2.ToArray(), 1)[0];
-                            currentFrame.Draw(new CircleF(max, 5f), new Bgr(Color.LimeGreen), 2);
-                            currentFrame.Draw(new CircleF(max2, 5f), new Bgr(Color.Blue), 2);
+                            //currentFrame.Draw(new CircleF(max, 5f), new Bgr(Color.LimeGreen), 2);
+                            //currentFrame.Draw(new CircleF(max2, 5f), new Bgr(Color.Blue), 2);
 
                             scale = GetScale(max, max2);
                         }
@@ -255,7 +279,7 @@ namespace HandGestureRecognition
                         Console.WriteLine(radi);
                         Console.WriteLine(scaling);
                     }
-                    currentFrame.Draw(new CircleF(object_point, radi), new Bgr(Color.Pink), 2);
+                    currentFrame.Draw(new CircleF(object_point, radi), new Bgr(Color.Pink), 20);
                 }
                 hull = biggestContour.GetConvexHull(Emgu.CV.CvEnum.ORIENTATION.CV_CLOCKWISE);
                 box = biggestContour.GetMinAreaRect();
@@ -355,13 +379,13 @@ namespace HandGestureRecognition
                 if ((startCircle.Center.Y < box.center.Y || depthCircle.Center.Y < box.center.Y) && (startCircle.Center.Y < depthCircle.Center.Y) && (Math.Sqrt(Math.Pow(startCircle.Center.X - depthCircle.Center.X, 2) + Math.Pow(startCircle.Center.Y - depthCircle.Center.Y, 2)) > box.size.Height / 6.5))
                 {
                     fingerNum++;
-                    currentFrame.Draw(startDepthLine, new Bgr(Color.Green), 2);
-                    currentFrame.Draw(depthEndLine, new Bgr(Color.Magenta), 2);
+                    //currentFrame.Draw(startDepthLine, new Bgr(Color.Green), 2);
+                    //currentFrame.Draw(depthEndLine, new Bgr(Color.Magenta), 2);
                 }
 
 
-                currentFrame.Draw(startCircle, new Bgr(Color.Red), 2);
-                currentFrame.Draw(depthCircle, new Bgr(Color.Yellow), 5);
+                //currentFrame.Draw(startCircle, new Bgr(Color.Red), 2);
+                //currentFrame.Draw(depthCircle, new Bgr(Color.Yellow), 5);
                 //currentFrame.Draw(endCircle, new Bgr(Color.DarkBlue), 4);
             }
             if (transational)
@@ -417,7 +441,7 @@ namespace HandGestureRecognition
             #endregion
 
             MCvFont font = new MCvFont(Emgu.CV.CvEnum.FONT.CV_FONT_HERSHEY_DUPLEX, 5d, 5d);
-            currentFrame.Draw(fingerNum.ToString(), ref font, new Point(50, 150), new Bgr(Color.White));
+            //currentFrame.Draw(fingerNum.ToString(), ref font, new Point(50, 150), new Bgr(Color.White));
         }
                                       
     }
