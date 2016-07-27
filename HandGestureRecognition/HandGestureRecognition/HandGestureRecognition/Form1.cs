@@ -14,7 +14,6 @@ namespace HandGestureRecognition
 {
     public partial class Form1 : Form
     {
-
         IColorSkinDetector skinDetector;
 
         Image<Bgr, Byte> currentFrame;
@@ -99,8 +98,8 @@ namespace HandGestureRecognition
 
         private MCvPoint3D32f ConvertTo3D(PointF point)
         {
-            float ratioX = (1000.0f/10);
-            float ratioY = (800.0f/2);
+            float ratioX = (10f/frameWidth);
+            float ratioY = (10f*frameHeight/frameWidth);
             return new MCvPoint3D32f(this.object_point.X*ratioX, this.object_point.Y*ratioY, 0);
         }
         
