@@ -1,0 +1,31 @@
+D:\Luca\Computer Vision\Emgu CV Projects\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\obj\Debug\ResolveAssemblyReference.cache
+D:\Luca\Computer Vision\Emgu CV Projects\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\HandGestureRecognition.SkinDetector.dll
+D:\Luca\Computer Vision\Emgu CV Projects\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\HandGestureRecognition.SkinDetector.pdb
+D:\Luca\Computer Vision\Emgu CV Projects\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\Emgu.CV.dll
+D:\Luca\Computer Vision\Emgu CV Projects\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\Emgu.Util.dll
+D:\Luca\Computer Vision\Emgu CV Projects\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\obj\Debug\HandGestureRecognition.SkinDetector.dll
+D:\Luca\Computer Vision\Emgu CV Projects\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\obj\Debug\HandGestureRecognition.SkinDetector.pdb
+C:\Users\t-dijain\Documents\hololens_hand_gestures\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\HandGestureRecognition.SkinDetector.dll
+C:\Users\t-dijain\Documents\hololens_hand_gestures\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\HandGestureRecognition.SkinDetector.pdb
+C:\Users\t-dijain\Documents\hololens_hand_gestures\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\Emgu.CV.dll
+C:\Users\t-dijain\Documents\hololens_hand_gestures\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\Emgu.Util.dll
+C:\Users\t-dijain\Documents\hololens_hand_gestures\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\obj\Debug\HandGestureRecognition.SkinDetector.csprojResolveAssemblyReference.cache
+C:\Users\t-dijain\Documents\hololens_hand_gestures\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\obj\Debug\HandGestureRecognition.SkinDetector.dll
+C:\Users\t-dijain\Documents\hololens_hand_gestures\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\obj\Debug\HandGestureRecognition.SkinDetector.pdb
+C:\Users\QUAN\Downloads\hololens_hand_gestures\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\HandGestureRecognition.SkinDetector.dll
+C:\Users\QUAN\Downloads\hololens_hand_gestures\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\HandGestureRecognition.SkinDetector.pdb
+C:\Users\QUAN\Downloads\hololens_hand_gestures\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\Emgu.CV.dll
+C:\Users\QUAN\Downloads\hololens_hand_gestures\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\Emgu.Util.dll
+C:\Users\QUAN\Downloads\hololens_hand_gestures\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\obj\Debug\HandGestureRecognition.SkinDetector.dll
+C:\Users\QUAN\Downloads\hololens_hand_gestures\HandGestureRecognition\HandGestureRecognition\HandGestureRecognition.SkinDetector\obj\Debug\HandGestureRecognition.SkinDetector.pdb
+C:\Users\QUAN\Documents\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\HandGestureRecognition.SkinDetector.dll
+C:\Users\QUAN\Documents\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\HandGestureRecognition.SkinDetector.pdb
+C:\Users\QUAN\Documents\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\Emgu.CV.dll
+C:\Users\QUAN\Documents\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\Emgu.Util.dll
+C:\Users\QUAN\Documents\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\Emgu.CV.xml
+C:\Users\QUAN\Documents\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\Emgu.Util.xml
+C:\Users\QUAN\Documents\HandGestureRecognition\HandGestureRecognition.SkinDetector\obj\Debug\HandGestureRecognition.SkinDetector.dll
+C:\Users\QUAN\Documents\HandGestureRecognition\HandGestureRecognition.SkinDetector\obj\Debug\HandGestureRecognition.SkinDetector.pdb
+C:\Users\QUAN\Documents\HandGestureRecognition\HandGestureRecognition.SkinDetector\obj\Debug\HandGestureRecognition.SkinDetector.csprojResolveAssemblyReference.cache
+C:\Users\QUAN\Documents\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\Emgu.CV.pdb
+C:\Users\QUAN\Documents\HandGestureRecognition\HandGestureRecognition.SkinDetector\bin\Debug\Emgu.Util.pdb
